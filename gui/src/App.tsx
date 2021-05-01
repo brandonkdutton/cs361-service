@@ -1,13 +1,29 @@
+import { exception } from "node:console";
 import { read } from "node:fs";
-import React, { FC, useState, useRef, RefObject, useEffect } from 'react';
+import React, { FC, useState, useRef, RefObject, useEffect, FormEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 const App: FC = () => {
+  enum imageSource {
+    url = "url",
+    file = "file"
+  };
+
+  enum transformations {
+    saturate = "saturate",
+    monochrome = "monochrome",
+    brighten = "brighten",
+    darken = "darken"
+  };
+
   const [fileInputKey, setFileInputKey] = useState<string>(uuidv4());
-  const [imgUrl, setImgUrl] = useState<string>();
-  const [localImg, setLocalImg] = useState<string>();
-  const [img, setImg] = useState<string>();
+  const [displayImage, setDisplayImage] = useState<string>();
+  const [imgSrc, setImgSrc] = useState<imageSource>();
+  const [transformation, setTransformation] = useState<string>();
+  const [urlImg, setUrlImg] = useState<string>();
+  const [fileImg, setFileImg] = useState<string>();
   const fileInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+
 
   // validate and preview image file when user selects one
   const onLocalFileChange = (): void => {
@@ -28,34 +44,70 @@ const App: FC = () => {
       setFileInputKey(uuidv4());
       return;
     }
-    setLocalImg(fileObj);
+    setFileImg(fileObj);
+    setImgSrc(imageSource.file);
   };
 
+  // set display image to url provided by user
   const onImgUrlSelected = (): void => {
     setFileInputKey(uuidv4());
-    setImg(imgUrl);
+    setImgSrc(imageSource.url);
   };
 
   useEffect(() => {
-    setImg(localImg ?? imgUrl);
-  }, [localImg]);
+    setDisplayImage(imgSrc === imageSource.file ? fileImg : urlImg);
+  }, [imgSrc]);
 
-  const submitTransformation = async (): Promise<void> => {
-    const uri = `${process.env.REACT_APP_API_URI}/services/imageTransformer`;
+  const submitTransformation = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+
     const body = new FormData();
-    body.append('ImgUpload', localImg as string);
-    body.append('ImgUrl', imgUrl as string);
 
-    const req = await fetch(uri, {
-      method: "POST",
-      body: body
-    });
+    if (imgSrc === imageSource.file) {
+      const files: FileList = fileInput?.current?.files as FileList;
+
+      if (!files)
+        return alert("no files selected?");
+
+      body.append("img", files[0]);
+      body.append("imgType", "file");
+    } else if (imgSrc === imageSource.url) {
+      if (!urlImg)
+        return alert("no file url?");
+
+      body.append("img", urlImg);
+      body.append("imgType", "url");
+    }
+
+    if (!transformation)
+      return alert("no transformation specified");
+    else
+      body.append("transformation", transformation);
+
+    const uri = `${process.env.REACT_APP_API_URI}/services/imageTransformer`;
+    type reqError = { message: string; };
+
+    try {
+      const req = await fetch(uri, {
+        method: "POST",
+        body: body
+      });
+      const data: reqError = await req.json();
+
+      if (req.status < 200 || req.status >= 400)
+        return alert(data.message);
+
+    } catch (e) {
+      alert("some error");
+    } finally {
+      alert("some finally");
+    }
   };
 
   return (
     <>
       <h2>Select an image to transform</h2>
-      <form action="">
+      <form onSubmit={(e) => submitTransformation(e)}>
         <fieldset>
           <label htmlFor="fileUpload">Upload local image</label>
           <br />
@@ -72,23 +124,23 @@ const App: FC = () => {
         <fieldset>
           <label htmlFor="imageUrlInput">enter image URL</label>
           <br />
-          <input type="text" name="imageUrl" id="imageUrlInput" value={imgUrl} onChange={({ target }) => setImgUrl(target.value)} />
+          <input type="text" name="imageUrl" id="imageUrlInput" value={urlImg} onChange={({ target }) => setUrlImg(target.value)} />
           <input type="button" value="Set URL" onClick={onImgUrlSelected} />
         </fieldset>
         <h3>Select a transformation to apply</h3>
         <fieldset>
-          <select name="transformation" id="transformationSelect">
-            <option selected value="None">None</option>
+          <select name="transformation" id="transformationSelect" value={transformation} onChange={({ target }) => setTransformation(target.value)}>
+            <option selected disabled value="None">None</option>
             <option value="Saturate">Saturate</option>
             <option value="Monochrome">Monochrome</option>
             <option value="Brighten">Brighten</option>
             <option value="Darken">Darken</option>
           </select>
-          <input type="button" value="Submit transformation" onClick={submitTransformation} />
+          <input type="submit" value="Submit transformation" />
         </fieldset>
       </form>
 
-      <img src={img} alt="" style={{ maxHeight: "400px" }} />
+      <img src={displayImage} alt="" style={{ maxHeight: "400px" }} />
     </>
   );
 };
