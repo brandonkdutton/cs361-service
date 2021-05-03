@@ -1,9 +1,7 @@
-import requests
-from service.Utilities.file_download import FileDLException
 from flask import current_app
 from flask.helpers import send_file
 from flask_restful import Resource, request
-from service.Utilities import BasicTransform, FileDL
+from service.Utilities import BasicTransform, FileDL, FileDLException
 import os
 
 
