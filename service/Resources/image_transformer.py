@@ -22,7 +22,19 @@ class ImageTransformer(Resource):
             return {"message": e.message}, 400
 
         transformation = request.form.get("transformation", None)
-        BasicTransform.saturate(file_path)
+        transformer = (
+            {
+                "saturate": BasicTransform.saturate,
+                "monochrome": BasicTransform.monochrome,
+                "darken": BasicTransform.darken,
+                "brighten": BasicTransform.brighten,
+            }
+        ).get(transformation, None)
+
+        try:
+            transformer(file_path)
+        except TypeError:
+            return {"message": "Invalid or no transformation requested"}, 400
 
         # taken from https://stackoverflow.com/questions/8384737/extract-file-name-from-path-no-matter-what-the-os-path-format
         file_name = os.path.basename(file_path)

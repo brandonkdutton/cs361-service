@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const HomePage: FC = () => {
   const [imgSrcType, setImgSrcType] = useState<imageSource>();
-  const [file, setFile] = useState<File>();
+  const [file, setFile] = useState<File | null>();
   const [url, setUrl] = useState<string>('');
   const [displayImage, setDisplayImage] = useState<string>('');
   const [fileSelectKey, setFileSelectKey] = useState<string>(uuidv4());
@@ -31,7 +31,7 @@ const HomePage: FC = () => {
     const uri = process.env.REACT_APP_API_URI! + '/services/imageTransformer';
     const body = new FormData();
     body.append('img', imgSrcType === imageSource.file ? file! : url!);
-    body.append('imgType', imgSrcType ?? '');
+    body.append('transformation', tran ?? '');
 
     type error = { message: string; };
     type response = { imgUrl: string; };
@@ -47,6 +47,7 @@ const HomePage: FC = () => {
       setDisplayImage(imgUrl);
       setUrl('');
       setFileSelectKey(uuidv4());
+      setFile(null);
     } catch (e) {
       return alert((e as Error).message);
     }
@@ -73,6 +74,7 @@ const HomePage: FC = () => {
         disabled={!tran || !(file || url)}
         onClick={handleTransform}
       >Transform</button>
+      {displayImage && <a href={displayImage} download>Download image</a>}
       <br />
       <img src={displayImage} />
     </>
