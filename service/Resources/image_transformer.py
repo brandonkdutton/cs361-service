@@ -1,24 +1,33 @@
+from flask import current_app
+from flask.helpers import send_file
 from flask_restful import Resource, request
-import requests
+from service.Utilities import BasicTransform, FileDL
 import os
-import uuid
 
 
 class ImageTransformer(Resource):
+    IMG_SAVE_DIR = f"{os.getcwd()}/imageUploads"
+
     def get(self):
-        return " you got "
+        try:
+            file_name = request.args["img"]
+            file_path = f"{self.IMG_SAVE_DIR}/{file_name}"
+            send_file(file_path)
+        except KeyError:
+            return {"message": "url missing argument: 'img'"}
+        except FileNotFoundError:
+            return {"message": f"file: {file_name} could not be found"}
+        else:
+            os.remove(file_path)
 
     def post(self):
         # upload_folder = os.getcwd().join(self.UPLOAD_FOLDER)
-        upload_folder = "./imageUploads"
-        if not os.path.isdir(upload_folder):
-            os.mkdir(upload_folder)
+        if not os.path.isdir(self.IMG_SAVE_DIR):
+            os.mkdir(self.IMG_SAVE_DIR)
 
         transformation = request.form.get("transformation", None)
         img_type = request.form.get("imgType", None)
 
-        # uuid based on: https://stackoverflow.com/questions/534839/how-to-create-a-guid-uuid-in-python
-        save_file_path = f"{upload_folder}/{uuid.uuid4()}"
         allowed_content_types = {"image/png": "png", "image/jpeg": "jpg"}
 
         if img_type == "url":
@@ -26,37 +35,30 @@ class ImageTransformer(Resource):
             if url is None:
                 return {"message": "no img value provided"}, 400
 
-            # based on: https://jdhao.github.io/2020/06/17/download_image_from_url_python/
-            r = requests.get(url)
-            content_type = r.headers.get("Content-Type", None)
+            file_path = FileDL.from_url(url, self.IMG_SAVE_DIR, allowed_content_types)
+            if file_path is None:
+                return {"message": "invalid image url"}, 400
 
-            if content_type not in allowed_content_types:
-                return {
-                    "message": "invalid image format given in url. jpg and png only!"
-                }, 400
+            BasicTransform.saturate(file_path)
 
-            file_extention = allowed_content_types[content_type]
-            file_name = f"{save_file_path}.{file_extention}"
-            with open(file_name, "wb") as f:
-                f.write(r.content)
+            # taken from https://stackoverflow.com/questions/8384737/extract-file-name-from-path-no-matter-what-the-os-path-format
+            file_name = os.path.basename(file_path)
+            bucket_url = current_app.config["BUCKET_URL"]
+            fetch_url = f"{bucket_url}/{file_name}"
 
-            input("press enter to delete file")
-            os.remove(file_name)
+            return {"imgUrl": fetch_url}
 
         elif img_type == "file":
             file = request.files.get("img", None)
 
-            if file.content_type not in allowed_content_types:
-                return {
-                    "message": "invalid image format given in url. jpg and png only!"
-                }, 400
+            file_path = FileDL.from_request_file(
+                file, self.IMG_SAVE_DIR, allowed_content_types
+            )
+            file_name = os.path.basename(file_path)
+            bucket_url = current_app.config["BUCKET_URL"]
+            fetch_url = f"{bucket_url}/{file_name}"
 
-            file_extention = allowed_content_types[file.content_type]
-            file_name = f"{save_file_path}.{file_extention}"
-            file.save(file_name)
-
-            input("press enter to delete file")
-            os.remove(file_name)
+            return {"imgUrl": fetch_url}, 200
 
         else:
             return {

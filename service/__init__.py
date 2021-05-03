@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Api
+from flask_restful import Api, Resource
 from flask_cors import CORS
 from . import config
 
@@ -16,5 +16,5 @@ def create_app():
 
     # setup the RESTful resources
     api.add_resource(Resources.ImageTransformer, "/api/services/imageTransformer")
-
+    api.add_resource(Resources.Image, "/api/services/image/<string:image_name>")
     return app

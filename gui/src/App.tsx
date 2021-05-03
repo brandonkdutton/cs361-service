@@ -85,17 +85,22 @@ const App: FC = () => {
       body.append("transformation", transformation);
 
     const uri = `${process.env.REACT_APP_API_URI}/services/imageTransformer`;
-    type reqError = { message: string; };
+    type error = { message: string; };
+    type response = { imgUrl: string; };
 
     try {
       const req = await fetch(uri, {
         method: "POST",
         body: body
       });
-      const data: reqError = await req.json();
+      const data: error | response = await req.json();
 
       if (req.status < 200 || req.status >= 400)
-        return alert(data.message);
+        return alert((data as error).message);
+
+      const imgDlURL: string = (data as response).imgUrl;
+      setDisplayImage(imgDlURL);
+      setImgSrc(imageSource.url);
 
     } catch (e) {
       alert("some error");
