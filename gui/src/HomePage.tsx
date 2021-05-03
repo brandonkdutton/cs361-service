@@ -1,7 +1,8 @@
 import React, { FC, useEffect, useState } from 'react';
 import FileSelect from './components/FileSelect';
 import UrlSelect from './components/UrlSelect';
-import { imageSource } from './components/types';
+import TransformMenu from './components/TransformMenu';
+import { imageSource, transformations as tr } from './components/types';
 import { v4 as uuidv4 } from 'uuid';
 
 const HomePage: FC = () => {
@@ -10,6 +11,7 @@ const HomePage: FC = () => {
   const [url, setUrl] = useState<string>('');
   const [displayImage, setDisplayImage] = useState<string>('');
   const [fileSelectKey, setFileSelectKey] = useState<string>(uuidv4());
+  const [tran, setTran] = useState<tr>();
 
   const setImageSource = (src: imageSource): void => {
     setImgSrcType(src);
@@ -25,6 +27,29 @@ const HomePage: FC = () => {
     }
   }, [file, url, imgSrcType]);
 
+  const handleTransform = async (): Promise<void> => {
+    const uri = process.env.REACT_APP_API_URI! + '/services/imageTransformer';
+    const body = new FormData();
+    body.append('img', imgSrcType === imageSource.file ? file! : url!);
+    body.append('imgType', imgSrcType ?? '');
+
+    type error = { message: string; };
+    type response = { imgUrl: string; };
+
+    try {
+      const req = await fetch(uri, { method: 'POST', body: body });
+      const resp: response | error = await req.json();
+
+      if (req.status < 200 || req.status >= 400)
+        return alert((resp as error).message);
+
+      const imgUrl: string = (resp as response).imgUrl;
+      setDisplayImage(imgUrl);
+    } catch (e) {
+      return alert((e as Error).message);
+    }
+  };
+
   return (
     <>
       <h2>Select an image source</h2>
@@ -39,6 +64,14 @@ const HomePage: FC = () => {
         setImageSource={setImageSource}
         setUrl={(url: string) => setUrl(url)}
       />
+      <TransformMenu
+        setTr={setTran}
+      />
+      <button
+        disabled={!tran || !(file || url)}
+        onClick={handleTransform}
+      >Transform</button>
+      <br />
       <img src={displayImage} />
     </>
   );

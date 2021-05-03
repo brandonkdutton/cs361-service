@@ -1,5 +1,4 @@
-import React, { FC, useRef, RefObject, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, { FC, useRef, RefObject } from 'react';
 import { imageSource } from './types';
 
 interface props {
@@ -11,7 +10,6 @@ interface props {
 
 const FileSelect: FC<props> = ({ setImageSource, setFile, forceRerenderKey, forceRerender }) => {
   const fileInputRef: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const [fileInputKey, setFileInputKey] = useState<string>(uuidv4());
 
   const handleFileChange = (): void => {
     const file: File = fileInputRef!.current!.files![0];
