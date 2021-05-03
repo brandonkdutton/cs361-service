@@ -8,41 +8,16 @@ import os
 class ImageTransformer(Resource):
     IMG_SAVE_DIR = f"{os.getcwd()}/imageUploads"
 
-    def get(self):
-        try:
-            file_name = request.args["img"]
-            file_path = f"{self.IMG_SAVE_DIR}/{file_name}"
-            send_file(file_path)
-        except KeyError:
-            return {"message": "url missing argument: 'img'"}
-        except FileNotFoundError:
-            return {"message": f"file: {file_name} could not be found"}
-        else:
-            os.remove(file_path)
-
     def post(self):
-        # upload_folder = os.getcwd().join(self.UPLOAD_FOLDER)
-        if not os.path.isdir(self.IMG_SAVE_DIR):
-            os.mkdir(self.IMG_SAVE_DIR)
-
-        img_type = request.form.get("imgType", None)
         allowed_content_types = {"image/png": "png", "image/jpeg": "jpg"}
+        img_file = request.files.get("img", None)
+        img_url = request.form.get("img", None)
+        file_to_save = img_file or img_url
 
         try:
-            if img_type == "url":
-                url = request.form.get("img", None)
-                file_path = FileDL.from_url(
-                    url, self.IMG_SAVE_DIR, allowed_content_types
-                )
-            elif img_type == "file":
-                image = request.files.get("img", None)
-                file_path = FileDL.from_request_file(
-                    image, self.IMG_SAVE_DIR, allowed_content_types
-                )
-            else:
-                raise FileDLException(
-                    "missing or invalid value for 'imgType'. Valid inputs are: 'url' and 'file'."
-                )
+            file_path = FileDL.save_to_dir(
+                file_to_save, self.IMG_SAVE_DIR, allowed_content_types
+            )
         except FileDLException as e:
             return {"message": e.message}, 400
 

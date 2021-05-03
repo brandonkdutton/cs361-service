@@ -45,6 +45,8 @@ const HomePage: FC = () => {
 
       const imgUrl: string = (resp as response).imgUrl;
       setDisplayImage(imgUrl);
+      setUrl('');
+      setFileSelectKey(uuidv4());
     } catch (e) {
       return alert((e as Error).message);
     }
