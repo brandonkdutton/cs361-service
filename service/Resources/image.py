@@ -17,7 +17,8 @@ class Image(Resource):
             @after_this_request
             def rm_file(response):
                 try:
-                    os.remove(file_path)
+                    # os.remove(file_path)
+                    pass
                 except FileNotFoundError:
                     pass
                 return response
