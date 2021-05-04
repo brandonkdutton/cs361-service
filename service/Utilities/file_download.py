@@ -44,8 +44,20 @@ class FileDL:
         if url is None:
             raise FileDLException("no url provided")
 
-        # based on: https://jdhao.github.io/2020/06/17/download_image_from_url_python/
-        r = requests.get(url)
+        try:
+            # based on: https://jdhao.github.io/2020/06/17/download_image_from_url_python/
+            r = requests.get(url)
+        except requests.exceptions.MissingSchema:
+            raise FileDLException("The url you provided was not a url.")
+        except requests.exceptions.ConnectionError:
+            raise FileDLException(
+                "A connection could not be established to host in the url you provided"
+            )
+        if r.status_code < 200 or r.status_code >= 400:
+            raise FileDLException(
+                "service requested the file you specified in the url but it gave a 404 error"
+            )
+
         content_type = r.headers.get("Content-Type", None)
 
         if content_type not in allowed_content_types:

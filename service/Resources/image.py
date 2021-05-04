@@ -1,5 +1,6 @@
-from flask import send_file, after_this_request
-from flask_restful import Resource, request
+from flask import send_file
+from flask_restful import Resource
+from service.Utilities import FileDL
 import os
 
 
@@ -10,6 +11,10 @@ class Image(Resource):
 
     def get(self, image_name):
         """returns and deletes an image stored on the file system"""
+
+        # remove files from the save dir older than 5 minutes to save space
+        FileDL.cleanup_saves(self.IMG_SAVE_DIR, 300)
+
         try:
             file_path = f"{self.IMG_SAVE_DIR}/{image_name}"
             return send_file(file_path)
