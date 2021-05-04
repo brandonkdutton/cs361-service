@@ -14,9 +14,8 @@ class BasicTransform:
         source: https://stackoverflow.com/questions/33831572/get-image-mode-pil-python
         """
         with Image.open(image_path) as img:
-            if img.format == "PNG":
-                new_image = img.convert("RGBA")
-                new_image.save(image_path)
+            new_image = img.convert("RGBA" if img.format == "PNG" else "RGB")
+            new_image.save(image_path)
 
     @staticmethod
     def saturate(image_path, factor=4):

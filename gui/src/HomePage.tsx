@@ -2,6 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 import FileSelect from './components/FileSelect';
 import UrlSelect from './components/UrlSelect';
 import TransformMenu from './components/TransformMenu';
+import BeforeAndAfter from './components/BeforeAndAfter';
 import { imageSource, transformations as tr } from './components/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -55,6 +56,7 @@ const HomePage: FC = () => {
 
   return (
     <>
+      <BeforeAndAfter />
       <h2>Select an image source</h2>
       <FileSelect
         forceRerenderKey={fileSelectKey}
