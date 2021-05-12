@@ -39,7 +39,7 @@ const transformFromUrl = async () => {
 
 * To do a transformation from an image upload blob file use the following code:
     **please note* if you don't know what a blob file is, then it's probably just easier to use the image url option.
-    * A blob file is the result of calling ```createObjectURL() ``` on the value of an image upload from an html <input type="fileUpload"> 
+    * A blob file is the result of calling ```createObjectURL() ``` on the value of an image upload from an html ```<input type="fileUpload">``` 
 
 ```javascript
 const transformFromFile = async () => {
