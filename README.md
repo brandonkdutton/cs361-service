@@ -32,7 +32,7 @@ const transformFromUrl = async () => {
         else
             return response.imgUrl;
     } catch (e) {
-        return alert(e.message);
+        return e.message;
     }
 };
 ```
@@ -57,7 +57,7 @@ const transformFromFile = async () => {
         else
             return response.imgUrl;
     } catch (e) {
-        return alert(e.message);
+        return e.message;
     }
 };
 ```
