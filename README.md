@@ -28,7 +28,7 @@ const transformFromUrl = async () => {
         const response = await req.json();
 
         if (req.status < 200 || req.status >= 400)
-            return alert(response.message);
+            return response.message;
         else
             return response.imgUrl;
     } catch (e) {
@@ -53,7 +53,7 @@ const transformFromFile = async () => {
         const response = await req.json();
 
         if (req.status < 200 || req.status >= 400)
-            return alert(response.message);
+            return response.message;
         else
             return response.imgUrl;
     } catch (e) {
