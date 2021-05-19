@@ -1,6 +1,6 @@
 // code modified from the example from https://material-ui.com/components/accordion/
 
-import React from 'react';
+import React, { FC, useRef, RefObject, useState, useEffect } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
@@ -10,6 +10,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import { imageSource } from './types';
+import { v4 as uuidv4 } from 'uuid';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -28,13 +30,50 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function ControlledAccordions() {
+interface props {
+  setFile: (file: File | null) => void,
+  setUrl: (url: string) => void,
+  setImgSrcType: (src: imageSource) => void,
+};
+
+const ControlledAccordions: FC<props> = ({ setFile, setUrl, setImgSrcType }) => {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState<string | false>(false);
+  const fileInputRef: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+  const [managedUrl, setManagedUrl] = useState<string>('');
+  const [fileSelectKey, setFileSelectKey] = useState<string>(uuidv4());
+
+  const handleUrlSelected = (): void => {
+    setUrl(managedUrl);
+    setImgSrcType(imageSource.url);
+  };
 
   const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false);
   };
+
+  const handleFileChange = (): void => {
+    const file: File = fileInputRef!.current!.files![0];
+
+    // based on: https://www.html5rocks.com/en/tutorials/file/dndfiles//
+    if (!file.type.match("image.*")) {
+      // trick from https://github.com/redux-form/redux-form/issues/769
+      return alert(`${file.name} is not an image file.`);
+    }
+    setFile(file);
+    setImgSrcType(imageSource.file);
+  };
+
+  useEffect(() => {
+    if (expanded !== 'panel1') {
+      setFileSelectKey(uuidv4());
+      setFile(null);
+    }
+    if (expanded !== 'panel2') {
+      setUrl('');
+      setManagedUrl('');
+    }
+  }, [expanded]);
 
   return (
     <div className={classes.root}>
@@ -61,10 +100,12 @@ export default function ControlledAccordions() {
                   shrink: true,
                 }}
                 variant="outlined"
+                onChange={(e) => setManagedUrl(e.target.value)}
+                value={managedUrl}
               />
             </Grid>
             <Grid item>
-              <Button variant="outlined">
+              <Button variant="outlined" onClick={handleUrlSelected}>
                 Select
                </Button>
             </Grid>
@@ -87,12 +128,16 @@ export default function ControlledAccordions() {
           >
             Select file
            <input
+              ref={fileInputRef}
               type="file"
               hidden
+              onChange={handleFileChange}
             />
           </Button>
         </AccordionDetails>
       </Accordion>
     </div>
   );
-}
+};
+
+export default ControlledAccordions;

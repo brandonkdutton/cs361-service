@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Grid, Typography, Button } from '@material-ui/core';
 import { transformations as tr } from '../components/types';
 import SelectImageSource from '../components/SelectImageSource';
+import { imageSource } from '../components/types';
 
 const useStyles = makeStyles((theme) => ({
   mainGrid: {
@@ -18,10 +19,19 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const LandingPage: FC = () => {
+interface props {
+  history: any;
+  setFile: (file: File | null) => void,
+  setUrl: (url: string) => void,
+  setImgSrcType: (src: imageSource) => void,
+  imgSelected: boolean,
+};
+
+const LandingPage: FC<props> = ({ history, setFile, setUrl, setImgSrcType, imgSelected }) => {
   const imgSrc = 'https://mattrbailey.files.wordpress.com/2014/08/pushing-giant-boulder.png';
   const [afterImage, setAfterImage] = useState<string>();
 
+  // fetch the after image
   useEffect(() => {
     const fetchAfterImage = async (): Promise<void> => {
       const uri = process.env.REACT_APP_API_URI! + '/services/imageTransformer';
@@ -64,7 +74,13 @@ const LandingPage: FC = () => {
       </Grid>
 
       <Grid item style={{ width: '60%' }}>
-        <SelectImageSource />
+        <SelectImageSource setFile={setFile} setUrl={setUrl} setImgSrcType={setImgSrcType} />
+      </Grid>
+
+      <Grid item>
+        <Button variant="outlined" disabled={!imgSelected}>
+          {imgSelected ? 'Continue' : 'Select an image to continue'}
+        </Button>
       </Grid>
 
     </Grid>
