@@ -1,8 +1,7 @@
 import React, { FC } from 'react';
-import { imageSource, transformations as tr } from '../components/types';
-import { Grid, Typography, Button } from '@material-ui/core';
+import { transformations as tr } from '../components/types';
+import { Grid, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   mainGrid: {
@@ -16,10 +15,14 @@ const useStyles = makeStyles((theme) => ({
 interface props {
   history: any;
   displayImage: string;
-  transform: (tan: tr) => void;
+  transform: (tran: tr) => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  undo: () => void;
+  redo: () => void;
 };
 
-const TransformerButtons: FC<props> = ({ history, displayImage, transform }) => {
+const TransformerButtons: FC<props> = ({ history, displayImage, transform, canUndo, canRedo, undo, redo }) => {
   const classes = useStyles();
 
   return (
@@ -27,16 +30,24 @@ const TransformerButtons: FC<props> = ({ history, displayImage, transform }) => 
       <Grid item container justify='center' spacing={2}>
         {Object.values(tr).map((t: tr) => (
           <Grid item key={t}>
-            <Button variant='outlined'>{t}</Button>
+            <Button variant='outlined' onClick={() => transform(t)}>{t}</Button>
           </Grid>
         ))}
       </Grid>
       <Grid item container justify='center' spacing={2}>
         <Grid item>
-          <Button variant='outlined'>Undo</Button>
+          <Button
+            variant='outlined'
+            disabled={!canUndo}
+            onClick={undo}
+          >Undo</Button>
         </Grid>
         <Grid item>
-          <Button variant='outlined'>Redo</Button>
+          <Button
+            variant='outlined'
+            disabled={!canRedo}
+            onClick={redo}
+          >Redo</Button>
         </Grid>
       </Grid>
       <Grid item>

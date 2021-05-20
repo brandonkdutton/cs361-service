@@ -1,8 +1,9 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { imageSource, transformations as tr } from '../components/types';
 import { Grid, Typography, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import TransformerButtons from '../components/TransformerButtons';
+import { transformHistoryItem as trHistItem } from '../components/types';
 
 const useStyles = makeStyles((theme) => ({
   mainGrid: {
@@ -27,8 +28,29 @@ interface props {
 
 const TransformationPage: FC<props> = ({ history, file, url, src, displayImage, setDisplayImage, setFile, setUrl, setImgSrcType }) => {
   const classes = useStyles();
-  type nullish = null | undefined;
   const imgSrc = 'https://mattrbailey.files.wordpress.com/2014/08/pushing-giant-boulder.png';
+  const [trHist, setTrHist] = useState<trHistItem[]>([
+    { url: displayImage, timestamp: new Date() }
+  ]);
+  const [trHistIndex, setTrHistIndex] = useState<number>(0);
+
+  const canUndo = (trHistIndex !== 0) && ((new Date().getTime() - trHist[trHistIndex - 1].timestamp.getTime()) / 1000 < 300);
+  const canRedo = trHistIndex < trHist.length - 1;
+
+  const undo = (): void => {
+    const newIndex = trHistIndex - 1;
+    setTrHistIndex(newIndex);
+    setFile(null);
+    setUrl(trHist[newIndex].url);
+    setImgSrcType(imageSource.url);
+  };
+  const redo = (): void => {
+    const newIndex = trHistIndex + 1;
+    setTrHistIndex(newIndex);
+    setFile(null);
+    setUrl(trHist[newIndex].url);
+    setImgSrcType(imageSource.url);
+  };
 
   const handleTransform = async (tran: tr): Promise<void> => {
     const uri = process.env.REACT_APP_API_URI! + '/services/imageTransformer';
@@ -47,7 +69,12 @@ const TransformationPage: FC<props> = ({ history, file, url, src, displayImage, 
         return alert((resp as error).message);
 
       const imgUrl: string = (resp as response).imgUrl;
-      setDisplayImage(imgUrl);
+
+      const newTrHist = trHist.slice(0, trHistIndex + 1);
+      newTrHist.push({ url: imgUrl, timestamp: new Date() });
+      setTrHist(newTrHist);
+      setTrHistIndex(trHistIndex + 1);
+
       setUrl(imgUrl);
       setFile(null);
       setImgSrcType(imageSource.url);
@@ -62,13 +89,17 @@ const TransformationPage: FC<props> = ({ history, file, url, src, displayImage, 
         <Typography variant='h3'>Apply a transformation</Typography>
       </Grid>
       <Grid item>
-        <img className={classes.exampleImage} src={displayImage || imgSrc} />
+        <img className={classes.exampleImage} src={trHist[trHistIndex].url} />
       </Grid>
       <Grid item>
         <TransformerButtons
           history={history}
-          displayImage={displayImage}
+          displayImage={trHist[trHistIndex].url}
           transform={handleTransform}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          undo={undo}
+          redo={redo}
         />
       </Grid>
     </Grid>

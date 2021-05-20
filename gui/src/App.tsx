@@ -4,12 +4,10 @@ import LandingPage from './pages/LandingPage';
 import TransformationPage from './pages/TransformPage';
 import DarkModeWrapper from './components/DarkModeWrapper';
 import SnackbarWrapper from './alerts/SnackbarWrapper';
-import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 import { imageSource } from './components/types';
-import { v4 as uuidv4 } from 'uuid';
 
 const App: FC = () => {
-
   const [imgSrcType, setImgSrcType] = useState<imageSource>();
   const [file, setFile] = useState<File | null>();
   const [url, setUrl] = useState<string>('');
@@ -26,6 +24,10 @@ const App: FC = () => {
       setDisplayImage(url);
     }
   }, [file, url, imgSrcType]);
+
+  useEffect(() => {
+
+  }, [setDisplayImage]);
 
   return (
     <DarkModeWrapper>
