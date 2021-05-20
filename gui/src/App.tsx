@@ -14,17 +14,16 @@ const App: FC = () => {
   const [file, setFile] = useState<File | null>();
   const [url, setUrl] = useState<string>('');
   const [displayImage, setDisplayImage] = useState<string>('');
-  const [fileSelectKey, setFileSelectKey] = useState<string>(uuidv4());
 
   const imgSelected: boolean = Boolean(file || url);
 
+  // set display image based on current state of imgSrcType
   useEffect(() => {
     if (imgSrcType === imageSource.file && file) {
       const blobPath: string = URL.createObjectURL(file);
       setDisplayImage(blobPath);
     } else if (imgSrcType === imageSource.url && url) {
       setDisplayImage(url);
-      setFileSelectKey(uuidv4());
     }
   }, [file, url, imgSrcType]);
 
@@ -41,7 +40,19 @@ const App: FC = () => {
               imgSelected={imgSelected}
             />}
           />
-          <Route exact path="/transformer" component={TransformationPage} />
+          <Route exact path="/transformer" render={(props) =>
+            <TransformationPage
+              {...props}
+              file={file}
+              url={url}
+              src={imgSrcType}
+              displayImage={displayImage}
+              setFile={setFile}
+              setUrl={setUrl}
+              setImgSrcType={setImgSrcType}
+              setDisplayImage={setDisplayImage}
+            />}
+          />
           <Route exact path="/old" component={HomePage} />
         </BrowserRouter>
       </SnackbarWrapper>

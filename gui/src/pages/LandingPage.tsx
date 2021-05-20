@@ -4,6 +4,7 @@ import { Grid, Typography, Button } from '@material-ui/core';
 import { transformations as tr } from '../components/types';
 import SelectImageSource from '../components/SelectImageSource';
 import { imageSource } from '../components/types';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   mainGrid: {
@@ -59,7 +60,7 @@ const LandingPage: FC<props> = ({ history, setFile, setUrl, setImgSrcType, imgSe
   return (
     <Grid container direction="column" justify="flex-start" alignItems="center" spacing={2} className={classes.mainGrid}>
       <Grid item>
-        <Typography variant="h3">Hello landing page</Typography>
+        <Typography variant="h3">Simple Image Transformer</Typography>
       </Grid>
 
       <Grid item>
@@ -78,7 +79,7 @@ const LandingPage: FC<props> = ({ history, setFile, setUrl, setImgSrcType, imgSe
       </Grid>
 
       <Grid item>
-        <Button variant="outlined" disabled={!imgSelected}>
+        <Button component={Link} to='/transformer' variant="outlined" disabled={!imgSelected}>
           {imgSelected ? 'Continue' : 'Select an image to continue'}
         </Button>
       </Grid>
