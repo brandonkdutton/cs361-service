@@ -40,16 +40,12 @@ const TransformationPage: FC<props> = ({ history, file, url, src, displayImage, 
   const undo = (): void => {
     const newIndex = trHistIndex - 1;
     setTrHistIndex(newIndex);
-    setFile(null);
     setUrl(trHist[newIndex].url);
-    setImgSrcType(imageSource.url);
   };
   const redo = (): void => {
     const newIndex = trHistIndex + 1;
     setTrHistIndex(newIndex);
-    setFile(null);
     setUrl(trHist[newIndex].url);
-    setImgSrcType(imageSource.url);
   };
 
   const handleTransform = async (tran: tr): Promise<void> => {

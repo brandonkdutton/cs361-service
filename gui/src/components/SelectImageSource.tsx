@@ -52,7 +52,7 @@ const ControlledAccordions: FC<props> = ({ setFile, setUrl, setImgSrcType }) => 
     setExpanded(isExpanded ? panel : false);
   };
 
-  const handleFileChange = (): void => {
+  const handleFileChange = async (): Promise<void> => {
     const file: File = fileInputRef!.current!.files![0];
 
     // based on: https://www.html5rocks.com/en/tutorials/file/dndfiles//
@@ -60,8 +60,28 @@ const ControlledAccordions: FC<props> = ({ setFile, setUrl, setImgSrcType }) => 
       // trick from https://github.com/redux-form/redux-form/issues/769
       return alert(`${file.name} is not an image file.`);
     }
-    setFile(file);
-    setImgSrcType(imageSource.file);
+
+    const uri = process.env.REACT_APP_API_URI! + '/services/imageUpload';
+    const body = new FormData();
+    body.append('img', file);
+
+    type error = { message: string; };
+    type response = { imgUrl: string; };
+
+    try {
+      const req = await fetch(uri, { method: 'POST', body: body });
+      const resp: response | error = await req.json();
+
+      if (req.status < 200 || req.status >= 400)
+        return alert((resp as error).message);
+
+      const imgUrl: string = (resp as response).imgUrl;
+
+      setUrl(imgUrl);
+      setImgSrcType(imageSource.url);
+    } catch (e) {
+      return alert((e as Error).message);
+    }
   };
 
   useEffect(() => {

@@ -17,4 +17,6 @@ def create_app():
     # setup the RESTful resources
     api.add_resource(Resources.ImageTransformer, "/api/services/imageTransformer")
     api.add_resource(Resources.Image, "/api/services/image/<string:image_name>")
+    api.add_resource(Resources.ImageUpload, "/api/services/imageUpload")
+
     return app
