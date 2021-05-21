@@ -1,12 +1,14 @@
-import React, { createContext, useState, FC, ReactChild } from 'react';
+import React, { createContext, useState, FC, ReactChild, MutableRefObject } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 
 interface Props {
   children: ReactChild;
 }
 type ContextObj = {
-  openSnackbar: (message: string, severity: string, duration?: number) => void;
+  openSnackbar: (message: string, severity: string, fileUrl: string, duration?: number) => void;
   closeSnackbar: () => void;
 };
 
@@ -18,6 +20,7 @@ const SnackbarWrapper: FC<Props> = ({ children }) => {
   const [message, setMessage] = useState<string>('');
   const [severity, setSeverity] = useState<string>('');
   const [duration, setDuration] = useState<number>(defaultDuration);
+  const [yesFile, setYesFile] = useState<string>();
 
   // applies custom styling to the mui alert component
   interface AlertProps {
@@ -29,12 +32,13 @@ const SnackbarWrapper: FC<Props> = ({ children }) => {
   };
 
   // opens snackbar with custom duration, severity, and message
-  const handleOpen = (message: string, severity: string, duration: number = defaultDuration): void => {
+  const handleOpen = (message: string, severity: string, fileUrl: string, duration: number = defaultDuration): void => {
     if (open)
       handleClose();
     if (!message || !severity)
       return;
 
+    setYesFile(fileUrl);
     setSeverity(severity);
     setMessage(message);
     setDuration(duration);
@@ -60,9 +64,21 @@ const SnackbarWrapper: FC<Props> = ({ children }) => {
         autoHideDuration={duration}
         onClose={handleClose}
         ClickAwayListenerProps={{ mouseEvent: 'onMouseUp' }}
+        action="yes"
       >
+        {/* source: https://material-ui.com/components/snackbars/ */}
         <Alert onClose={handleClose} severity={severity}>
-          {message}
+          <Grid container direction='column' alignItems='center' spacing={1}>
+            <Grid item>{message}</Grid>
+          </Grid>
+          <Grid item container justify='center' spacing={1}>
+            <Grid item>
+              <Button variant="outlined" href={yesFile} onClick={handleClose} download component='a'>Yes</Button>
+            </Grid>
+            <Grid item>
+              <Button variant="outlined" onClick={handleClose}>No</Button>
+            </Grid>
+          </Grid>
         </Alert>
       </Snackbar>
     </SnackbarContext.Provider >

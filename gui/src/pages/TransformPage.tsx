@@ -1,6 +1,6 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useContext } from 'react';
 import { imageSource, transformations as tr } from '../components/types';
-import { Grid, Typography, Button } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import TransformerButtons from '../components/TransformerButtons';
 import { transformHistoryItem as trHistItem } from '../components/types';
@@ -96,6 +96,7 @@ const TransformationPage: FC<props> = ({ history, file, url, src, displayImage, 
           canRedo={canRedo}
           undo={undo}
           redo={redo}
+          index={trHistIndex}
         />
       </Grid>
     </Grid>
