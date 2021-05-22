@@ -1,6 +1,6 @@
 import React, { FC, useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Grid, Typography, Button } from '@material-ui/core';
+import { Grid, Typography, Button, List, ListItem, ListItemText, Divider } from '@material-ui/core';
 import { transformations as tr } from '../components/types';
 import SelectImageSource from '../components/SelectImageSource';
 import { imageSource } from '../components/types';
@@ -17,6 +17,15 @@ const useStyles = makeStyles((theme) => ({
   layoutContainer: {
     padding: theme.spacing(2),
     flexWrap: 'nowrap'
+  },
+  listContainer: {
+    textAlign: 'center'
+  },
+  listTitle: {
+    paddingBottom: theme.spacing(2)
+  },
+  listItem: {
+    textAlign: 'center'
   }
 }));
 
@@ -82,6 +91,26 @@ const LandingPage: FC<props> = ({ history, setFile, setUrl, setImgSrcType, imgSe
         <Button component={Link} to='/transformer' variant="outlined" disabled={!imgSelected}>
           {imgSelected ? 'Continue' : 'Select an image to continue'}
         </Button>
+      </Grid>
+
+      {/* source: https://material-ui.com/components/lists/#interactive */}
+      <Grid item className={classes.listContainer}>
+        <Typography variant='h6' className={classes.listTitle}>How do I use this?</Typography>
+        <Divider />
+        <List>
+          <ListItem className={classes.listItem}>
+            <ListItemText>1. Select an image from your computer or from a web url.</ListItemText>
+          </ListItem>
+          <ListItem className={classes.listItem}>
+            <ListItemText>2. Apply a basic transformation on the next page.</ListItemText>
+          </ListItem>
+          <ListItem className={classes.listItem}>
+            <ListItemText>3. Click the download button for your newly transformed image.</ListItemText>
+          </ListItem>
+          <ListItem className={classes.listItem}>
+            <ListItemText>4. Thats it! You're done.</ListItemText>
+          </ListItem>
+        </List>
       </Grid>
 
     </Grid>
