@@ -46,3 +46,13 @@ class BasicTransform:
     def brighten(image_path, factor=1.5):
         """makes an image brighter"""
         BasicTransform.darken(image_path, factor)
+
+    @staticmethod
+    def sharpen(image_path, factor=3):
+        """makes an image sharper"""
+        BasicTransform.convert_image(image_path)
+
+        with Image.open(image_path) as img:
+            filter = ImageEnhance.Sharpness(img)
+            new_image = filter.enhance(factor)
+            new_image.save(image_path)

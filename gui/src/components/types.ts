@@ -7,7 +7,8 @@ export enum transformations {
   saturate = "saturate",
   monochrome = "monochrome",
   brighten = "brighten",
-  darken = "darken"
+  darken = "darken",
+  sharpen = "sharpen"
 };
 
 export type transformHistoryItem = {

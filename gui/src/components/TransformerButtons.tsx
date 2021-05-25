@@ -32,7 +32,8 @@ const TransformerButtons: FC<props> = ({ history, displayImage, transform, canUn
     [tr.brighten]: 'Makes the image less dark',
     [tr.darken]: 'Makes the image less bright',
     [tr.saturate]: 'Makes the image more colorful',
-    [tr.monochrome]: 'Makes the image black and white'
+    [tr.monochrome]: 'Makes the image black and white',
+    [tr.sharpen]: 'Makes the image sharper'
   };
 
   const handleDownload = (e: React.MouseEvent): void => {
