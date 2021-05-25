@@ -87,6 +87,7 @@ const TransformationPage: FC<props> = ({ history, file, url, src, displayImage, 
       <Grid item>
         <img className={classes.exampleImage} src={trHist[trHistIndex].url} />
       </Grid>
+      <Grid item><Typography>Basic transformations</Typography></Grid>
       <Grid item>
         <TransformerButtons
           history={history}

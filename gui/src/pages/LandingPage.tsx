@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
   exampleImage: {
     maxWidth: '300px',
     minWidth: '300px',
+    maxHeight: '350px'
   },
   layoutContainer: {
     padding: theme.spacing(2),
@@ -38,11 +39,33 @@ interface props {
 };
 
 const LandingPage: FC<props> = ({ history, setFile, setUrl, setImgSrcType, imgSelected }) => {
-  const imgSrc = 'https://mattrbailey.files.wordpress.com/2014/08/pushing-giant-boulder.png';
+  //const imgSrc = 'https://mattrbailey.files.wordpress.com/2014/08/pushing-giant-boulder.png';
   const [afterImage, setAfterImage] = useState<string>();
+  const [imgSrc, setImgSrc] = useState<string>('');
+
+  // fetch the before image from Andrew Dunn's service
+  // fetch code taken from Andrew Dunn's example code
+  useEffect(() => {
+    const fetchAndrewImage = async (): Promise<void> => {
+      const serverURL = 'http://flip3.engr.oregonstate.edu:35351/api/image-scraper';
+      let payload = JSON.stringify({ wikiURL: "https://en.wikipedia.org/wiki/Chicago", });
+      let response = await fetch(serverURL, { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: payload, mode: 'cors' });
+
+      if (response.status < 200 || response.status >= 400)
+        return alert("some error fetching Andrew's image");
+      else {
+        let body = await response.json();
+        let untransformedURL = "http:" + body.imageURL;
+        setImgSrc(untransformedURL ?? '');
+      }
+    };
+    fetchAndrewImage();
+  }, []);
 
   // fetch the after image
   useEffect(() => {
+    if (!imgSrc) return;
+
     const fetchAfterImage = async (): Promise<void> => {
       const uri = process.env.REACT_APP_API_URI! + '/services/imageTransformer';
       const body = new FormData();
@@ -63,13 +86,14 @@ const LandingPage: FC<props> = ({ history, setFile, setUrl, setImgSrcType, imgSe
       }
     };
     fetchAfterImage();
-  }, []);
+  }, [imgSrc]);
 
   const classes = useStyles();
   return (
     <Grid container direction="column" justify="flex-start" alignItems="center" spacing={2} className={classes.mainGrid}>
-      <Grid item>
+      <Grid item className={classes.listItem}>
         <Typography variant="h3">Simple Image Transformer</Typography>
+        <Typography>Preform basic image transformations quickly and easily</Typography>
       </Grid>
 
       <Grid item>

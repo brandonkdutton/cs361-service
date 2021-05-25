@@ -1,5 +1,4 @@
 import React, { FC, useState, useEffect } from 'react';
-import HomePage from './HomePage';
 import LandingPage from './pages/LandingPage';
 import TransformationPage from './pages/TransformPage';
 import DarkModeWrapper from './components/DarkModeWrapper';
@@ -55,7 +54,6 @@ const App: FC = () => {
               setDisplayImage={setDisplayImage}
             />}
           />
-          <Route exact path="/old" component={HomePage} />
         </BrowserRouter>
       </SnackbarWrapper>
     </DarkModeWrapper>
