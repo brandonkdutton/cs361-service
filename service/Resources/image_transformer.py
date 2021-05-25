@@ -28,6 +28,7 @@ class ImageTransformer(Resource):
                 "monochrome": BasicTransform.monochrome,
                 "darken": BasicTransform.darken,
                 "brighten": BasicTransform.brighten,
+                "sharpen": BasicTransform.sharpen,
             }
         ).get(transformation, None)
 
